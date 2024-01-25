@@ -1,0 +1,12 @@
+SimpleITK
+nibabel
+nnunetv2==2.1
+dicom2nifti
+scikit-image
+medpy
+scikit_learn
+matplotlib
+seaborn
+pydicom
+opencv-python
+connected_components_3d

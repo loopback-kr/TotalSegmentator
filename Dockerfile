@@ -1,20 +1,21 @@
-FROM nvcr.io/nvidia/pytorch:23.05-py3
+FROM loopbackkr/pytorch:2.0.0-cuda11.7-cudnn8-devel
 
-RUN apt-get update
-# Needed for fury vtk. ffmpeg also needed
-RUN apt-get install ffmpeg libsm6 libxext6 -y
-RUN apt-get install xvfb -y
+ARG USER=hyunseoki
+ARG XDG_RUNTIME_DIR=1000194
+RUN groupadd --gid $XDG_RUNTIME_DIR $USER &&\
+    useradd --uid $XDG_RUNTIME_DIR --gid $XDG_RUNTIME_DIR -m $USER &&\
+    apt update -qq && apt install -qqy sudo &&\
+    echo $USER ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER &&\
+    chmod 0440 /etc/sudoers.d/$USER
 
-RUN pip install --upgrade pip
+RUN apt update && apt install -qqy \
+    ffmpeg libsm6 libxext6 xvfb
 
-# installing pyradiomics results in an error in github actions
-# RUN pip pyradiomics
+WORKDIR /workspace
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -e .
 
-COPY . /app
-RUN pip install /app
-
-RUN python /app/totalsegmentator/download_pretrained_weights.py
-
-# expose not needed if using -p
-# If using only expose and not -p then will not work
-# EXPOSE 80
+RUN chown $USER:$USER /workspace
+USER $USER
+ENV PYTHONPATH=/workspace

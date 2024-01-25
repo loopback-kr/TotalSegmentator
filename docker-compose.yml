@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  service:
+    container_name: hyunseoki_TotalSegment
+    build:
+      context: $PWD
+    image: hyunseoki/totalsegment
+    tty: true
+    stdin_open: true
+    shm_size: 1TB
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [ gpu ]
+              count: all
+    volumes:
+      - $PWD:/workspace
+      - /mnt/nas216/Fatty_LLiver/_Preprocessed/nifti:/workspace/datasets/nifti:rw
+      - /mnt/nas216/Fatty_LLiver/_Preprocessed/mask:/workspace/datasets/mask:rw
+      - /mnt/nas216/Fatty_LLiver/:/workspace/datasets/raw:ro
