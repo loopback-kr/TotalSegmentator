@@ -9,10 +9,11 @@ RUN groupadd --gid $(basename $XDG_RUNTIME_DIR) $USER &&\
 RUN apt update && apt install -qqy \
     ffmpeg libsm6 libxext6 xvfb
 
+ENV PYTHONPATH=/workspace
 WORKDIR /workspace
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install -e .
 RUN chown $USER:$USER /workspace
 USER $USER
-ENV PYTHONPATH=/workspace
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY setup.py /workspace/
+RUN pip install -e .
