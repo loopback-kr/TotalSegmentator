@@ -4,7 +4,10 @@ services:
   service:
     container_name: hyunseoki_TotalSegment
     build:
-      context: $PWD
+        context: $PWD
+        args:
+          - USER
+          - XDG_RUNTIME_DIR
     image: hyunseoki/totalsegment
     tty: true
     stdin_open: true
@@ -18,6 +21,7 @@ services:
               count: all
     volumes:
       - $PWD:/workspace
-      - /mnt/nas216/Fatty_LLiver/_Preprocessed/nifti:/workspace/datasets/nifti:rw
+      - /mnt/nas216/Fatty_LLiver/_Preprocessed/nifti:/workspace/datasets/nifti:ro
+      - /mnt/nas216/Fatty_LLiver/_Preprocessed/raw-notfound+split:/workspace/datasets/raw-notfound+split:ro
       - /mnt/nas216/Fatty_LLiver/_Preprocessed/mask:/workspace/datasets/mask:rw
       - /mnt/nas216/Fatty_LLiver/:/workspace/datasets/raw:ro
