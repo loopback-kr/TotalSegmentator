@@ -215,6 +215,38 @@ def download_pretrained_weights(task_id):
         # WEIGHTS_URL = "https://zenodo.org/record/7334272/files/Task269_Body_extrem_6mm_1200subj.zip?download=1"
         # WEIGHTS_URL = url + "/static/totalseg_v2/Dataset300_body_6mm_1559subj.zip"
         WEIGHTS_URL = url + "/v2.0.0-weights/Dataset300_body_6mm_1559subj.zip"
+    elif task_id == 775:
+        weights_path = config_dir / "Dataset775_head_glands_cavities_492subj"
+        WEIGHTS_URL = url + "/v2.3.0-weights/Dataset775_head_glands_cavities_492subj.zip"
+    elif task_id == 776:
+        weights_path = config_dir / "Dataset776_headneck_bones_vessels_492subj"
+        WEIGHTS_URL = url + "/v2.3.0-weights/Dataset776_headneck_bones_vessels_492subj.zip"
+    elif task_id == 777:
+        weights_path = config_dir / "Dataset777_head_muscles_492subj"
+        WEIGHTS_URL = url + "/v2.3.0-weights/Dataset777_head_muscles_492subj.zip"
+    elif task_id == 778:
+        weights_path = config_dir / "Dataset778_headneck_muscles_part1_492subj"
+        WEIGHTS_URL = url + "/v2.3.0-weights/Dataset778_headneck_muscles_part1_492subj.zip"
+    elif task_id == 779:
+        weights_path = config_dir / "Dataset779_headneck_muscles_part2_492subj"
+        WEIGHTS_URL = url + "/v2.3.0-weights/Dataset779_headneck_muscles_part2_492subj.zip"
+    elif task_id == 351:
+        weights_path = config_dir / "Dataset351_oculomotor_muscles_18subj"
+        WEIGHTS_URL = url + "/v2.4.0-weights/Dataset351_oculomotor_muscles_18subj.zip"
+                
+    # MR models
+    elif task_id == 730:
+        weights_path = config_dir / "Dataset730_TotalSegmentatorMRI_part1_organs_495subj"
+        WEIGHTS_URL = url + "/v2.2.0-weights/Dataset730_TotalSegmentatorMRI_part1_organs_495subj.zip"
+    elif task_id == 731:
+        weights_path = config_dir / "Dataset731_TotalSegmentatorMRI_part2_muscles_495subj"
+        WEIGHTS_URL = url + "/v2.2.0-weights/Dataset731_TotalSegmentatorMRI_part2_muscles_495subj.zip"
+    elif task_id == 732:
+        weights_path = config_dir / "Dataset732_TotalSegmentatorMRI_total_3mm_495subj"
+        WEIGHTS_URL = url + "/v2.2.0-weights/Dataset732_TotalSegmentatorMRI_total_3mm_495subj.zip"
+    elif task_id == 733:
+        weights_path = config_dir / "Dataset733_TotalSegmentatorMRI_total_6mm_495subj"
+        WEIGHTS_URL = url + "/v2.2.0-weights/Dataset733_TotalSegmentatorMRI_total_6mm_495subj.zip"
 
     # Models from other projects
     elif task_id == 258:
@@ -252,9 +284,8 @@ def download_pretrained_weights(task_id):
         # WEIGHTS_URL = url + "/static/totalseg_v2/Dataset503_cardiac_motion.zip"
         WEIGHTS_URL = url + "/v2.0.0-weights/Dataset503_cardiac_motion.zip"
     elif task_id == 8:
-        weights_path = config_dir / "Task008_HepaticVessel"
-        # WEIGHTS_URL = "https://zenodo.org/record/7573746/files/Task008_HepaticVessel.zip?download=1"
-        WEIGHTS_URL = "todo"
+        weights_path = config_dir / "Dataset008_HepaticVessel"
+        WEIGHTS_URL = url + "/v2.4.0-weights/Dataset008_HepaticVessel.zip"
 
     # Commercial models
     elif task_id == 304:
@@ -267,7 +298,12 @@ def download_pretrained_weights(task_id):
         weights_path = config_dir / "Dataset481_tissue_1559subj"
     elif task_id == 302:
         weights_path = config_dir / "Dataset302_vertebrae_body_1559subj"
-        # WEIGHTS_URL = url + "/v2.0.0-weights/Dataset302_vertebrae_body_1559subj.zip"
+    elif task_id == 734:
+        weights_path = config_dir / "Dataset734_TotalSegmentatorMRI_tissue_495subj"
+    elif task_id == 737:
+        weights_path = config_dir / "Dataset737_TotalSegmentatorMRI_face_495subj"
+    elif task_id == 409:
+        weights_path = config_dir / "Dataset409_neuro_550subj"
 
     else:
         raise ValueError(f"For task_id {task_id} no download path was found.")
@@ -333,12 +369,13 @@ def combine_masks(mask_dir, class_type):
 
     returns: nibabel image
     """
+    rib_classes = [f"rib_left_{idx}" for idx in range(1, 13)] + [f"rib_right_{idx}" for idx in range(1, 13)]  # + ["sternum",]
     if class_type == "ribs":
-        masks = list(class_map_5_parts["class_map_part_ribs"].values())
+        masks = rib_classes
     elif class_type == "vertebrae":
         masks = list(class_map_5_parts["class_map_part_vertebrae"].values())
     elif class_type == "vertebrae_ribs":
-        masks = list(class_map_5_parts["class_map_part_vertebrae"].values()) + list(class_map_5_parts["class_map_part_ribs"].values())
+        masks = list(class_map_5_parts["class_map_part_vertebrae"].values()) + rib_classes
     elif class_type == "lung":
         masks = ["lung_upper_lobe_left", "lung_lower_lobe_left", "lung_upper_lobe_right",
                  "lung_middle_lobe_right", "lung_lower_lobe_right"]
@@ -379,7 +416,8 @@ def compress_nifti(file_in, file_out, dtype=np.int32, force_3d=True):
 
 def check_if_shape_and_affine_identical(img_1, img_2):
 
-    if not np.array_equal(img_1.affine, img_2.affine):
+    max_diff = np.abs(img_1.affine - img_2.affine).max()
+    if max_diff > 1e-5:
         print("Affine in:")
         print(img_1.affine)
         print("Affine out:")

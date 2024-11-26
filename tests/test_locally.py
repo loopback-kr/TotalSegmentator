@@ -1,5 +1,7 @@
 import sys
 from pathlib import Path
+p_dir = str(Path(__file__).absolute().parents[1])
+if p_dir not in sys.path: sys.path.insert(0, p_dir)
 
 import pytest
 import os
@@ -7,15 +9,18 @@ import re
 import glob
 import shutil
 import subprocess
+from collections import defaultdict
+import time
+import threading
+import platform
+import importlib.metadata
+
+import psutil
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
-from collections import defaultdict
-import psutil
-import time
-import threading
 import torch
-import platform
+import nnunetv2
 
 from totalsegmentator.python_api import totalsegmentator
 from totalsegmentator.map_to_binary import class_map
@@ -45,12 +50,12 @@ def get_memory_usage():
     process = psutil.Process(os.getpid())
     memory_info = process.memory_info()
     current_memory = memory_info.rss / (1024 ** 2)  # Convert to MB
-    max_memory_usage = max(max_memory_usage, round(current_memory))  # Update max_memory_usage
+    max_memory_usage = max(max_memory_usage, int(round(current_memory)))  # Update max_memory_usage
 
 def get_gpu_memory_usage():
     global max_gpu_memory_usage
     current_memory = torch.cuda.memory_allocated() / (1024 ** 2)  # Convert to MB
-    max_gpu_memory_usage = max(max_gpu_memory_usage, round(current_memory))  # Update max_gpu_memory_usage
+    max_gpu_memory_usage = max(max_gpu_memory_usage, int(round(current_memory)))  # Update max_gpu_memory_usage
 
 def memory_monitor(interval=0.5):
     while True:
@@ -137,15 +142,15 @@ def are_logs_similar(last_log, new_log, cols, tolerance_percent=0.04):
     for old_value, new_value, col in zip(last_log, new_log, cols):
         # Check string values for equality
         if isinstance(old_value, str) and isinstance(new_value, str):
-            if old_value != new_value:
+            if old_value != new_value and col != "comment":
                 print(f"  Difference in {col}: {old_value} != {new_value}")
                 identical = False
         # Check Timestamp
         elif isinstance(old_value, pd.Timestamp) and isinstance(new_value, pd.Timestamp):
             continue
         # Check numeric values for similarity within a tolerance
-        elif (isinstance(old_value, (int, float)) or np.isscalar(old_value) ) and \
-                (isinstance(new_value, (int, float)) or np.isscalar(new_value)):
+        elif isinstance(old_value, (int, float, np.integer, np.floating)) and \
+             isinstance(new_value, (int, float, np.integer, np.floating)):
             if old_value == 0 and new_value == 0:
                 continue
             elif old_value == 0 or new_value == 0:
@@ -158,7 +163,7 @@ def are_logs_similar(last_log, new_log, cols, tolerance_percent=0.04):
                 identical = False
         else:
             # If types are neither string nor numeric, do a direct comparison
-            if old_value != new_value:
+            if old_value != new_value and col != "comment":
                 print(f"  Difference in {col}: {old_value} != {new_value} (type: {type(old_value)})))")
                 identical = False
     return identical
@@ -176,8 +181,13 @@ if __name__ == "__main__":
     cpu_utilization = {}
     gpu_utilization = {}
 
+    device = "gpu"  # "cpu" or "gpu"
+
+    debug = False
+
     for resolution in ["15mm", "3mm"]:
     # for resolution in ["3mm"]:
+        print(f"----- resolution {resolution} ------")
         img_dir = base_dir / resolution / "ct"
         gt_dir = base_dir / resolution / "gt"
         pred_dir = base_dir / resolution / "pred"
@@ -185,32 +195,43 @@ if __name__ == "__main__":
 
         print("Run totalsegmentator...")
         reset_monitors()
-        for img_fn in tqdm(img_dir.glob("*.nii.gz")):
+        subjects = sorted(list(img_dir.glob("*.nii.gz"))[:1] if debug else list(img_dir.glob("*.nii.gz")))
+        for img_fn in tqdm(subjects):
             fast = resolution == "3mm"
+            if img_fn.name.split(".")[0].endswith("_mr"):
+                task = "total_mr" 
+            elif img_fn.name.split(".")[0].endswith("_headneck"):
+                task = "headneck_bones_vessels" 
+            else:
+                task = "total"
             st = time.time()
-            totalsegmentator(img_fn, pred_dir / img_fn.name, fast=fast, ml=True, device="gpu")
+            totalsegmentator(img_fn, pred_dir / img_fn.name, fast=fast, ml=True, task=task, device=device)
             times[resolution].append(time.time()-st)
 
         print("Logging...")
         times[resolution] = np.mean(times[resolution]).round(1)
         memory_ram[resolution] = max_memory_usage
         memory_gpu[resolution] = max_gpu_memory_usage
-        cpu_utilization[resolution] = np.mean(cpu_utilizations).round(1)
-        gpu_utilization[resolution] = np.mean(gpu_utilizations).round(1)
+        cpu_utilization[resolution] = float(np.mean(cpu_utilizations).round(1))
+        gpu_utilization[resolution] = float(np.mean(gpu_utilizations).round(1))
 
         print("Calc metrics...")
-        subjects = [s.name.split(".")[0] for s in img_dir.glob("*.nii.gz")]
+        subjects = [s.name.split(".")[0] for s in subjects]
         res = [calc_metrics(s, gt_dir, pred_dir, class_map["total"]) for s in subjects]
         res = pd.DataFrame(res)
 
         print("Aggregate metrics...")
         for metric in ["dice", "surface_dice_3"]:
-            res_all_rois = []
+            res_all_rois = {}
             for roi_name in class_map["total"].values():
                 row_wo_nan = res[f"{metric}-{roi_name}"].dropna()
-                res_all_rois.append(row_wo_nan.mean())
-                # print(f"{roi_name} {metric}: {row_wo_nan.mean():.3f}")  # per roi
-            scores[resolution][metric] = np.nanmean(res_all_rois).round(3)  # mean over all rois
+                res_all_rois[roi_name] = float(row_wo_nan.mean())
+            # print per roi (sorted)
+            # if metric == "dice":
+            #     res_all_rois = {k: v for k, v in sorted(res_all_rois.items(), key=lambda x: x[1] if not np.isnan(x[1]) else 0, reverse=True)}
+            #     for k, v in res_all_rois.items():
+            #         print(f"{k}: {v:.3f}")
+            scores[resolution][metric] = np.nanmean(list(res_all_rois.values())).round(3)  # mean over all rois
 
     scores = dict(scores)
     times = dict(times)
@@ -222,8 +243,9 @@ if __name__ == "__main__":
             "memory_gpu_15mm", "memory_gpu_3mm",
             "cpu_utilization_15mm", "cpu_utilization_3mm",
             "gpu_utilization_15mm", "gpu_utilization_3mm",
-            "python_version", "torch_version", "cuda_version", "cudnn_version",
-            "gpu_name"]
+            "python_version", "torch_version", "nnunet_version",
+            "cuda_version", "cudnn_version",
+            "gpu_name", "comment"]
     overview_file = Path(f"{base_dir}/overview.xlsx")
     if overview_file.exists():
         overview = pd.read_excel(overview_file)
@@ -240,14 +262,15 @@ if __name__ == "__main__":
                cpu_utilization["15mm"], cpu_utilization["3mm"],
                gpu_utilization["15mm"], gpu_utilization["3mm"],
                platform.python_version(), torch.__version__,
+               importlib.metadata.version("nnunetv2"),
                float(torch.version.cuda), int(torch.backends.cudnn.version()),
-               torch.cuda.get_device_name(0)]
+               torch.cuda.get_device_name(0), ""]
 
-    print("Comparing NEW to PREVIOUS log:")
+    print("Comparing PREVIOUS to NEW log:")
     if are_logs_similar(last_log, new_log, cols):
-        print("SUCCESS: no differences")
+        print("\nSUCCESS: no differences\n")
     else:
-        print("ERROR: major differences found")
+        print("\nERROR: major differences found\n")
 
     print(f"Saving to {overview_file}...")
     overview.loc[len(overview)] = new_log

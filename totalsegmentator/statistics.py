@@ -3,10 +3,12 @@ from pathlib import Path
 import json
 from functools import partial
 import time
+from typing import Union
 
 import numpy as np
 import pandas as pd
 import nibabel as nib
+from nibabel.nifti1 import Nifti1Image
 from tqdm import tqdm
 from p_tqdm import p_map
 import numpy.ma as ma
@@ -79,19 +81,25 @@ def touches_border(mask):
     """
     Check if mask touches any of the borders. Then we do not calc any statistics for it because the mask
     is incomplete.
-    Do not check last slice by one previous, because segmentation on last slice often bad.
+    Do not check last two slices but the previous one, because segmentation on last slices often bad.
     """
-    if np.any(mask[1, :, :]) or np.any(mask[-2, :, :]):
+    if np.any(mask[2, :, :]) or np.any(mask[-3, :, :]):
         return True
-    if np.any(mask[:, 1, :]) or np.any(mask[:, -2, :]):
+    if np.any(mask[:, 2, :]) or np.any(mask[:, -3, :]):
         return True
-    if np.any(mask[:, :, 1]) or np.any(mask[:, :, -2]):
+    if np.any(mask[:, :, 2]) or np.any(mask[:, :, -3]):
         return True
     return False
 
 
-def get_basic_statistics(seg: np.array, ct_file, file_out: Path, quiet: bool = False,
-                         task: str = "total", exclude_masks_at_border: bool = True):
+def get_basic_statistics(seg: np.array, 
+                         ct_file: Union[Path, Nifti1Image], 
+                         file_out: Union[Path, None]=None, 
+                         quiet: bool=False,
+                         task: str="total", 
+                         exclude_masks_at_border: bool=True,
+                         roi_subset: list=None,
+                         metric: str="mean"):
     """
     ct_file: path to a ct_file or a nifti file object
     """
@@ -99,8 +107,13 @@ def get_basic_statistics(seg: np.array, ct_file, file_out: Path, quiet: bool = F
     ct = ct_img.get_fdata().astype(np.int16)
     spacing = ct_img.header.get_zooms()
     vox_vol = spacing[0] * spacing[1] * spacing[2]
+    
+    class_map_stats = class_map[task]
+    if roi_subset is not None:
+        class_map_stats = {k: v for k, v in class_map_stats.items() if v in roi_subset}
+    
     stats = {}
-    for k, mask_name in tqdm(class_map[task].items(), disable=quiet):
+    for k, mask_name in tqdm(class_map_stats.items(), disable=quiet):
         stats[mask_name] = {}
         # data = nib.load(mask).get_fdata()  # loading: 0.6s
         data = seg == k  # 0.18s
@@ -111,11 +124,18 @@ def get_basic_statistics(seg: np.array, ct_file, file_out: Path, quiet: bool = F
         else:
             stats[mask_name]["volume"] = data.sum() * vox_vol  # vol in mm3; 0.2s
             roi_mask = (data > 0).astype(np.uint8)  # 0.16s
-            # stats[mask_name]["intensity"] = ct[roi_mask > 0].mean().round(2) if roi_mask.sum() > 0 else 0.0  # 3.0s
-            stats[mask_name]["intensity"] = np.average(ct, weights=roi_mask).round(2) if roi_mask.sum() > 0 else 0.0  # 0.9s
+            st = time.time()
+            if metric == "mean":
+                # stats[mask_name]["intensity"] = ct[roi_mask > 0].mean().round(2) if roi_mask.sum() > 0 else 0.0  # 3.0s
+                stats[mask_name]["intensity"] = np.average(ct, weights=roi_mask).round(2) if roi_mask.sum() > 0 else 0.0  # 0.9s  # fast lowres mode: 0.03s
+            elif metric == "median":
+                stats[mask_name]["intensity"] = np.median(ct[roi_mask > 0]).round(2) if roi_mask.sum() > 0 else 0.0  # 0.9s  # fast lowres mode: 0.014s
+            # print(f"took: {time.time()-st:.4f}s")
 
-    # For nora json is good
-    # For other people csv might be better -> not really because here only for one subject each -> use json
-    with open(file_out, "w") as f:
-        json.dump(stats, f, indent=4)
-
+    if file_out is not None:
+        # For nora json is good
+        # For other people csv might be better -> not really because here only for one subject each -> use json
+        with open(file_out, "w") as f:
+            json.dump(stats, f, indent=4)
+    else:
+        return stats

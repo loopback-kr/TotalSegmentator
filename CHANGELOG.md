@@ -1,11 +1,42 @@
 ## Master
+* add option to remove small connected components in postprocessing
+* add `totalseg_get_modality`
+* change pi_time threshold for arterial late phase from 50s to 60s
+* add oculomotor muscles model
+
+## Release 2.4.0
+* add brain structures
+* add liver vessels
+* greatly improved phase classification model
+
+
+## Release 2.3.0
+* Bugfixes
+* add headneck structures
+
+
+## Release 2.2.1
+* also return statistics from python api
+* add `totalseg_get_phase`
+* major bugfix: rib labels were in wrong order
+* hide nnunetv2 2.3.1 warning: `Detected old nnU-Net plans format. Attempting to reconstruct network architecture...`
+* add mr models
+
+
+## Release 2.1.0
 * Bugfix: add flush to DummyFile
 * Require python >= 3.9 in setup.py
 * properly add `vertebrae_body` model
 * add `--roi_subset_robust` argument
 * add `--fastest` argument
-* allow `mps` as device (but not working yet)
+* allow `mps` as device (but not supported by pytorch yet)
 * add inline python version requirement for `requests` package
+* if input spacing same as resampling spacing then skip resampling
+* from python api also return nifti with label map in header
+* input to python api can be a Nifti1Image object or a file path
+* upgrade to `nnunetv2>=2.2.1`
+* for `total` task use nnU-Net `step_size=0.8` instead of `0.5` for faster runtime while only decreasing dice by 0.001
+* minor edits and bugfixes
 
 
 ## Release 2.0.5

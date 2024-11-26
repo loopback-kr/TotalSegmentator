@@ -201,22 +201,22 @@ class_map = {
         89: "iliopsoas_right",
         90: "brain",
         91: "skull",
-        92: "rib_right_4",
-        93: "rib_right_3",
-        94: "rib_left_1",
-        95: "rib_left_2",
-        96: "rib_left_3",
-        97: "rib_left_4",
-        98: "rib_left_5",
-        99: "rib_left_6",
-        100: "rib_left_7",
-        101: "rib_left_8",
-        102: "rib_left_9",
-        103: "rib_left_10",
-        104: "rib_left_11",
-        105: "rib_left_12",
-        106: "rib_right_1",
-        107: "rib_right_2",
+        92: "rib_left_1",
+        93: "rib_left_2",
+        94: "rib_left_3",
+        95: "rib_left_4",
+        96: "rib_left_5",
+        97: "rib_left_6",
+        98: "rib_left_7",
+        99: "rib_left_8",
+        100: "rib_left_9",
+        101: "rib_left_10",
+        102: "rib_left_11",
+        103: "rib_left_12",
+        104: "rib_right_1",
+        105: "rib_right_2",
+        106: "rib_right_3",
+        107: "rib_right_4",
         108: "rib_right_5",
         109: "rib_right_6",
         110: "rib_right_7",
@@ -228,10 +228,91 @@ class_map = {
         116: "sternum",
         117: "costal_cartilages"
     },
+    
+    "total_mr": {
+        1: "spleen",
+        2: "kidney_right",
+        3: "kidney_left",
+        4: "gallbladder",
+        5: "liver",
+        6: "stomach",
+        7: "pancreas",
+        8: "adrenal_gland_right",
+        9: "adrenal_gland_left",
+        10: "lung_left",
+        11: "lung_right",
+        12: "esophagus",
+        13: "small_bowel",
+        14: "duodenum",
+        15: "colon",
+        16: "urinary_bladder",
+        17: "prostate",
+        18: "sacrum",
+        19: "vertebrae",
+        20: "intervertebral_discs",
+        21: "spinal_cord",
+        22: "heart",
+        23: "aorta",
+        24: "inferior_vena_cava",
+        25: "portal_vein_and_splenic_vein",
+        26: "iliac_artery_left",
+        27: "iliac_artery_right",
+        28: "iliac_vena_left",
+        29: "iliac_vena_right",
+        30: "humerus_left",
+        31: "humerus_right",
+        32: "fibula",
+        33: "tibia",
+        34: "femur_left",
+        35: "femur_right",
+        36: "hip_left",
+        37: "hip_right",
+        38: "gluteus_maximus_left",
+        39: "gluteus_maximus_right",
+        40: "gluteus_medius_left",
+        41: "gluteus_medius_right",
+        42: "gluteus_minimus_left",
+        43: "gluteus_minimus_right",
+        44: "autochthon_left",
+        45: "autochthon_right",
+        46: "iliopsoas_left",
+        47: "iliopsoas_right",
+        48: "quadriceps_femoris_left",
+        49: "quadriceps_femoris_right",
+        50: "thigh_medial_compartment_left",
+        51: "thigh_medial_compartment_right",
+        52: "thigh_posterior_compartment_left",
+        53: "thigh_posterior_compartment_right",
+        54: "sartorius_left",
+        55: "sartorius_right",
+        56: "brain",
+    },
+    
     # total_fast not extra class map, because easier to use just "total" for fast model
     "lung_vessels": {
         1: "lung_vessels",
         2: "lung_trachea_bronchia"
+    },
+    "oculomotor_muscles": {
+        1: "skull",  # auxiliary class
+        2: "eyeball_right",
+        3: "lateral_rectus_muscle_right",
+        4: "superior_oblique_muscle_right",
+        5: "levator_palpebrae_superioris_right",
+        6: "superior_rectus_muscle_right",
+        7: "medial_rectus_muscle_left",
+        8: "inferior_oblique_muscle_right",
+        9: "inferior_rectus_muscle_right",
+        10: "optic_nerve_left",
+        11: "eyeball_left",
+        12: "lateral_rectus_muscle_left",
+        13: "superior_oblique_muscle_left",
+        14: "levator_palpebrae_superioris_left",
+        15: "superior_rectus_muscle_left",
+        16: "medial_rectus_muscle_right",
+        17: "inferior_oblique_muscle_left",
+        18: "inferior_rectus_muscle_left",
+        19: "optic_nerve_right"
     },
     "covid": {
         1: "lung_covid_infiltrate",
@@ -283,6 +364,19 @@ class_map = {
         10: "metacarpal",
         11: "phalanges_hand"
     },
+    "appendicular_bones_mr": {
+        1: "patella",
+        2: "tibia",
+        3: "fibula",
+        4: "tarsal",
+        5: "metatarsal",
+        6: "phalanges_feet",
+        7: "ulna",
+        8: "radius",
+        # 9: "carpal",  # missing for mr
+        # 10: "metacarpal",  # missing for mr
+        # 11: "phalanges_hand"  # missing for mr
+    },
     # those classes need to be removed
     "appendicular_bones_auxiliary": {
         12: "humerus",
@@ -295,8 +389,157 @@ class_map = {
         2: "torso_fat",
         3: "skeletal_muscle"
     },
+    "tissue_types_mr": {
+        1: "subcutaneous_fat",
+        2: "torso_fat",
+        3: "skeletal_muscle"
+    },
     "face": {
         1: "face"
+    },
+    "face_mr": {
+        1: "face"
+    },
+    # those classes need to be removed
+    "face_mr_auxiliary": {
+        2: "brain",
+        3: "liver"
+    },
+    "brain_structures": {
+        1: "brainstem",  # + brain_parenchyma
+        2: "subarachnoid_space",
+        3: "venous_sinuses", # + dural folds
+        4: "septum_pellucidum",
+        5: "cerebellum",
+        6: "caudate_nucleus",
+        7: "lentiform_nucleus",
+        8: "insular_cortex",
+        9: "internal_capsule",
+        10: "ventricle",
+        11: "central_sulcus",
+        12: "frontal_lobe",
+        13: "parietal_lobe",
+        14: "occipital_lobe",
+        15: "temporal_lobe",
+        16: "thalamus"
+    },
+    "head_glands_cavities": {
+        1: "eye_left",
+        2: "eye_right",
+        3: "eye_lens_left",
+        4: "eye_lens_right",
+        5: "optic_nerve_left",
+        6: "optic_nerve_right",
+        7: "parotid_gland_left",
+        8: "parotid_gland_right",
+        9: "submandibular_gland_right",
+        10: "submandibular_gland_left",
+        11: "nasopharynx",
+        12: "oropharynx",
+        13: "hypopharynx",
+        14: "nasal_cavity_right",
+        15: "nasal_cavity_left",
+        16: "auditory_canal_right",
+        17: "auditory_canal_left",
+        18: "soft_palate",
+        19: "hard_palate"
+    },
+    "headneck_bones_vessels": {
+        1: "larynx_air",
+        2: "thyroid_cartilage",
+        3: "hyoid",
+        4: "cricoid_cartilage",
+        5: "zygomatic_arch_right",
+        6: "zygomatic_arch_left",
+        7: "styloid_process_right",
+        8: "styloid_process_left",
+        9: "internal_carotid_artery_right",
+        10: "internal_carotid_artery_left",
+        11: "internal_jugular_vein_right",
+        12: "internal_jugular_vein_left",
+    },
+    "head_muscles": {   
+        1: "masseter_right",
+        2: "masseter_left",
+        3: "temporalis_right",
+        4: "temporalis_left",
+        5: "lateral_pterygoid_right",
+        6: "lateral_pterygoid_left",
+        7: "medial_pterygoid_right",
+        8: "medial_pterygoid_left",
+        9: "tongue",
+        10: "digastric_right",
+        11: "digastric_left"
+    },
+    "headneck_muscles": {
+        1: "sternocleidomastoid_right",
+        2: "sternocleidomastoid_left",
+        3: "superior_pharyngeal_constrictor",
+        4: "middle_pharyngeal_constrictor",
+        5: "inferior_pharyngeal_constrictor",
+        6: "trapezius_right",
+        7: "trapezius_left",
+        8: "platysma_right",
+        9: "platysma_left",
+        10: "levator_scapulae_right",
+        11: "levator_scapulae_left",
+        12: "anterior_scalene_right",
+        13: "anterior_scalene_left",
+        14: "middle_scalene_right",
+        15: "middle_scalene_left",
+        16: "posterior_scalene_right",
+        17: "posterior_scalene_left",
+        18: "sterno_thyroid_right",
+        19: "sterno_thyroid_left",
+        20: "thyrohyoid_right",
+        21: "thyrohyoid_left",
+        22: "prevertebral_right",
+        23: "prevertebral_left"
+    },
+    # CT model WIP
+    "shoulder_muscles": {
+        1: "deltoid",
+        2: "supraspinatus",
+        3: "infraspinatus",  # this also contains teres_minor
+        4: "subscapularis",
+        5: "coracobrachial",
+        6: "trapezius",
+        7: "pectoralis_minor",
+        8: "serratus_anterior",
+        9: "teres_major",
+        10: "triceps_brachii"
+    },
+    "shoulder_muscles_mr": {    
+        1: "deltoid",
+        2: "supraspinatus",
+        3: "infraspinatus",  # this also contains teres_minor
+        4: "subscapularis",
+        5: "coracobrachial",
+        6: "trapezius",
+        7: "pectoralis_minor",
+        8: "serratus_anterior",
+        9: "teres_major",
+        10: "triceps_brachii"
+    },
+    "thigh_muscles": {
+        1: "quadriceps_femoris_left",
+        2: "quadriceps_femoris_right",
+        3: "thigh_medial_compartment_left",
+        4: "thigh_medial_compartment_right",
+        5: "thigh_posterior_compartment_left",
+        6: "thigh_posterior_compartment_right",
+        7: "sartorius_left",
+        8: "sartorius_right"
+    },
+    "thigh_muscles_mr": {
+        1: "quadriceps_femoris_left",
+        2: "quadriceps_femoris_right",
+        3: "thigh_medial_compartment_left",
+        4: "thigh_medial_compartment_right",
+        5: "thigh_posterior_compartment_left",
+        6: "thigh_posterior_compartment_right",
+        7: "sartorius_left",
+        8: "sartorius_right"
     },
     "test": {
         1: "carpal"
@@ -308,13 +551,12 @@ commercial_models = {
     "heartchambers_highres": 301,
     "appendicular_bones": 304,
     "tissue_types": 481,
+    "tissue_types_mr": 734,
     "vertebrae_body": 302,
-    "face": 303
+    "face": 303,
+    "face_mr": 737,
+    "brain_structures": 409
 }
-# future
-# - brain subparts
-# - head subparts
-# - everything highres?
 
 
 class_map_5_parts = {
@@ -470,7 +712,130 @@ class_map_5_parts = {
 }
 
 
-map_taskid_to_partname = {
+class_map_parts_mr = {
+    
+    "class_map_part_organs": {
+        1: "spleen",
+        2: "kidney_right",
+        3: "kidney_left",
+        4: "gallbladder",
+        5: "liver",
+        6: "stomach",
+        7: "pancreas",
+        8: "adrenal_gland_right",
+        9: "adrenal_gland_left",
+        10: "lung_left",
+        11: "lung_right",
+        12: "esophagus",
+        13: "small_bowel",
+        14: "duodenum",
+        15: "colon",
+        16: "urinary_bladder",
+        17: "prostate",
+        18: "sacrum",
+        19: "vertebrae",
+        20: "intervertebral_discs",
+        21: "spinal_cord",
+        22: "heart",
+        23: "aorta",
+        24: "inferior_vena_cava",
+        25: "portal_vein_and_splenic_vein",
+        26: "iliac_artery_left",
+        27: "iliac_artery_right",
+        28: "iliac_vena_left",
+        29: "iliac_vena_right"
+    },
+    
+    "class_map_part_muscles": {
+        1: "humerus_left",
+        2: "humerus_right",
+        3: "fibula",
+        4: "tibia",
+        5: "femur_left",
+        6: "femur_right",
+        7: "hip_left",
+        8: "hip_right",
+        9: "gluteus_maximus_left",
+        10: "gluteus_maximus_right",
+        11: "gluteus_medius_left",
+        12: "gluteus_medius_right",
+        13: "gluteus_minimus_left",
+        14: "gluteus_minimus_right",
+        15: "autochthon_left",
+        16: "autochthon_right",
+        17: "iliopsoas_left",
+        18: "iliopsoas_right",
+        19: "quadriceps_femoris_left",
+        20: "quadriceps_femoris_right",
+        21: "thigh_medial_compartment_left",
+        22: "thigh_medial_compartment_right",
+        23: "thigh_posterior_compartment_left",
+        24: "thigh_posterior_compartment_right",
+        25: "sartorius_left",
+        26: "sartorius_right",
+        27: "brain"
+    }
+    
+    # "class_map_part_muscles_NEXT_RELEASE": {
+    #     1: "humerus_left",
+    #     2: "humerus_right",
+    #     3: "scapula_left",
+    #     4: "scapula_right",
+    #     5: "clavicula_left",
+    #     6: "clavicula_right",
+    #     7: "femur_left",
+    #     8: "femur_right",
+    #     9: "hip_left",
+    #     10: "hip_right",
+    #     11: "gluteus_maximus_left",
+    #     12: "gluteus_maximus_right",
+    #     13: "gluteus_medius_left",
+    #     14: "gluteus_medius_right",
+    #     15: "gluteus_minimus_left",
+    #     16: "gluteus_minimus_right",
+    #     17: "autochthon_left",
+    #     18: "autochthon_right",
+    #     19: "iliopsoas_left",
+    #     20: "iliopsoas_right",
+    #     21: "brain"
+    # }
+}
+
+
+class_map_parts_headneck_muscles = {
+ 
+    "class_map_part_muscles_1": {
+        1: "sternocleidomastoid_right", 
+        2: "sternocleidomastoid_left",
+        3: "superior_pharyngeal_constrictor",
+        4: "middle_pharyngeal_constrictor",
+        5: "inferior_pharyngeal_constrictor",
+        6: "trapezius_right",
+        7: "trapezius_left",
+        8: "platysma_right",
+        9: "platysma_left",
+        10: "levator_scapulae_right",
+        11: "levator_scapulae_left"
+    },
+
+    "class_map_part_muscles_2": {
+        1: "anterior_scalene_right",
+        2: "anterior_scalene_left",
+        3: "middle_scalene_right",
+        4: "middle_scalene_left",
+        5: "posterior_scalene_right",
+        6: "posterior_scalene_left",
+        7: "sterno_thyroid_right",
+        8: "sterno_thyroid_left",
+        9: "thyrohyoid_right",
+        10: "thyrohyoid_left",
+        11: "prevertebral_right",
+        12: "prevertebral_left"
+    }
+}
+
+
+map_taskid_to_partname_ct = {
     291: "class_map_part_organs",
     292: "class_map_part_vertebrae",
     293: "class_map_part_cardiac",
@@ -478,6 +843,16 @@ map_taskid_to_partname = {
     295: "class_map_part_ribs",
 
     517: "test",
+}
+
+map_taskid_to_partname_mr = {
+    730: "class_map_part_organs",
+    731: "class_map_part_muscles"
+}
+
+map_taskid_to_partname_headneck_muscles = {
+    778: "class_map_part_muscles_1",
+    779: "class_map_part_muscles_2"
 }
 
 # pprint({idx:v for idx, (k, v) in enumerate(a.items())}, sort_dicts=False)

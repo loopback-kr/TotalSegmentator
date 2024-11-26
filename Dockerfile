@@ -24,7 +24,7 @@ RUN apt-get update -qq && apt-get install -qqy\
     && apt clean && rm -rf /var/lib/apt/lists/*
 
 RUN apt update && apt install -qqy \
-    ffmpeg libsm6 libxext6 xvfb
+    ffmpeg libsm6 libxext6 xvfb fury
 
 ENV PYTHONPATH=/workspace
 WORKDIR /workspace

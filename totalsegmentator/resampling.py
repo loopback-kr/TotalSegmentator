@@ -3,11 +3,11 @@
 import os
 import time
 import importlib
+import multiprocessing
 
 import numpy as np
 import nibabel as nib
 from scipy import ndimage
-import psutil
 from joblib import Parallel, delayed
 
 cupy_available = importlib.util.find_spec("cupy") is not None
@@ -44,7 +44,7 @@ def resample_img(img, zoom=0.5, order=0, nr_cpus=-1):
     if dim == 3:
         img = img[..., None]
 
-    nr_cpus = psutil.cpu_count() if nr_cpus == -1 else nr_cpus
+    nr_cpus = multiprocessing.cpu_count() if nr_cpus == -1 else nr_cpus
     img_sm = Parallel(n_jobs=nr_cpus)(delayed(_process_gradient)(grad_idx) for grad_idx in range(img.shape[3]))
     img_sm = np.array(img_sm).transpose(1, 2, 3, 0)  # grads channel was in front -> put to back
     # Remove added dimensions
@@ -170,6 +170,10 @@ def change_spacing(img_in, new_spacing=1.25, target_shape=None, order=0, nr_cpus
         new_spacing = img_spacing / zoom
     else:
         zoom = img_spacing / new_spacing
+
+    if np.array_equal(img_spacing, new_spacing):
+        # print("Input spacing is equal to new spacing. Return image without resampling.")
+        return img_in
 
     # copy very important; otherwise new_affine changes will also be in old affine
     new_affine = np.copy(img_in.affine)

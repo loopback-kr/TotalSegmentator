@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='TotalSegmentator',
-        version='2.0.5',
+        version='2.4.0',
         description='Robust segmentation of 104 classes in CT images.',
         long_description="See Readme.md on github for more details.",
         url='https://github.com/wasserth/TotalSegmentator',
@@ -11,21 +11,25 @@ setup(name='TotalSegmentator',
         python_requires='>=3.9',
         license='Apache 2.0',
         packages=find_packages(),
+        package_data={"totalsegmentator": 
+            ["resources/totalsegmentator_snomed_mapping.csv",
+             "resources/contrast_phase_classifiers_2024_07_19.pkl",
+             "resources/modality_classifiers_2024_10_04.pkl"]
+            },
         install_requires=[
-            'torch>=1.10.2',
-            'numpy',
-            'psutil',
+            'torch>=2.1.2',
+            'numpy<2',
             'SimpleITK',
             'nibabel>=2.3.0',
             'tqdm>=4.45.0',
             'p_tqdm',
             'xvfbwrapper',
-            'fury',
-            'nnunetv2==2.1',
+            'nnunetv2>=2.2.1',
             'requests==2.27.1;python_version<"3.10"',
             'requests;python_version>="3.10"',
             'rt_utils',
             'dicom2nifti',
+            'pyarrow'
         ],
         zip_safe=False,
         classifiers=[
@@ -43,7 +47,9 @@ setup(name='TotalSegmentator',
                 'totalseg_import_weights=totalsegmentator.bin.totalseg_import_weights:main',
                 'totalseg_download_weights=totalsegmentator.bin.totalseg_download_weights:main',
                 'totalseg_setup_manually=totalsegmentator.bin.totalseg_setup_manually:main',
-                'totalseg_set_license=totalsegmentator.bin.totalseg_set_license:main'
+                'totalseg_set_license=totalsegmentator.bin.totalseg_set_license:main',
+                'totalseg_get_phase=totalsegmentator.bin.totalseg_get_phase:main',
+                'totalseg_get_modality=totalsegmentator.bin.totalseg_get_modality:main'
             ],
         },
     )

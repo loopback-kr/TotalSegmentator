@@ -1,11 +1,17 @@
 #!/usr/bin/env python
-import sys
-import os
 import argparse
 from pkg_resources import require
 from pathlib import Path
+import re
+from totalsegmentator.python_api import totalsegmentator, validate_device_type_api
 
-from totalsegmentator.python_api import totalsegmentator
+
+def validate_device_type(value):
+    try:
+        return validate_device_type_api(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"Invalid device type: '{value}'. Must be 'gpu', 'cpu', 'mps', or 'gpu:X' where X is an integer representing the GPU device ID.")
 
 
 def main():
@@ -13,7 +19,7 @@ def main():
                                      epilog="Written by Jakob Wasserthal. If you use this tool please cite https://pubs.rsna.org/doi/10.1148/ryai.230024")
 
     parser.add_argument("-i", metavar="filepath", dest="input",
-                        help="CT nifti image or folder of dicom slices",
+                        help="CT nifti image or folder of dicom slices or zip file of dicom slices.",
                         type=lambda p: Path(p).absolute(), required=True)
 
     parser.add_argument("-o", metavar="directory", dest="output",
@@ -52,8 +58,9 @@ def main():
                         "lung_vessels", "cerebral_bleed", "hip_implant", "coronary_arteries",
                         "pleural_pericard_effusion", "test",
                         "appendicular_bones", "tissue_types", "heartchambers_highres",
-                        "face", "vertebrae_body"],
-                        # future: liver_vessels, head,
+                        "face", "vertebrae_body", "total_mr", "tissue_types_mr", "face_mr",
+                        "head_glands_cavities", "head_muscles", "headneck_bones_vessels", "headneck_muscles",
+                        "brain_structures", "liver_vessels", "oculomotor_muscles"],
                         help="Select which model to use. This determines what is predicted.",
                         default="total")
 
@@ -84,7 +91,7 @@ def main():
                         help="Do initial rough body segmentation and crop image to body region",
                         default=False)
 
-    parser.add_argument("-fs", "--force_split", action="store_true", help="Process image in 3 chunks for less memory consumption",
+    parser.add_argument("-fs", "--force_split", action="store_true", help="Process image in 3 chunks for less memory consumption. (do not use on small images)",
                         default=False)
 
     parser.add_argument("-ss", "--skip_saving", action="store_true",
@@ -100,12 +107,14 @@ def main():
                         help="In multilabel file order classes as in v1. New v2 classes will be removed.",
                         default=False)
 
+    parser.add_argument("-rmb", "--remove_small_blobs", action="store_true", help="Remove small connected components (<0.2ml) from the final segmentations.",
+                        default=False)  # ~30s runtime because of the large number of classes
+        
     # "mps" is for apple silicon; the latest pytorch nightly version supports 3D Conv but not ConvTranspose3D which is
     # also needed by nnU-Net. So "mps" not working for now.
     # https://github.com/pytorch/pytorch/issues/77818
-    parser.add_argument("-d", "--device", choices=["gpu", "cpu", "mps"],
-                        help="Device to run on (default: gpu).",
-                        default="gpu")
+    parser.add_argument("-d",'--device', type=validate_device_type, default="gpu",
+                        help="Device type: 'gpu', 'cpu', 'mps', or 'gpu:X' where X is an integer representing the GPU device ID.")
 
     parser.add_argument("-q", "--quiet", action="store_true", help="Print no intermediate outputs",
                         default=False)
@@ -134,7 +143,8 @@ def main():
                      args.statistics, args.radiomics, args.crop_path, args.body_seg,
                      args.force_split, args.output_type, args.quiet, args.verbose, args.test, args.skip_saving,
                      args.device, args.license_number, not args.stats_include_incomplete,
-                     args.no_derived_masks, args.v1_order, args.fastest, args.roi_subset_robust)
+                     args.no_derived_masks, args.v1_order, args.fastest, args.roi_subset_robust,
+                     "mean", args.remove_small_blobs)
 
 
 if __name__ == "__main__":
