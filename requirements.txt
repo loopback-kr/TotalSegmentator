@@ -1,6 +1,6 @@
 SimpleITK
 nibabel
-nnunetv2==2.1
+nnunetv2==2.5.1
 dicom2nifti
 scikit-image
 medpy
@@ -10,3 +10,4 @@ seaborn
 pydicom
 opencv-python
 connected_components_3d
+fury

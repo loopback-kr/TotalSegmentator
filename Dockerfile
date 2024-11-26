@@ -1,4 +1,4 @@
-FROM loopbackkr/pytorch:2.0.1-cuda11.7-cudnn8-devel
+FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
 
 # Set environment variables
 ARG DEBIAN_FRONTEND=noninteractive
@@ -24,7 +24,7 @@ RUN apt-get update -qq && apt-get install -qqy\
     && apt clean && rm -rf /var/lib/apt/lists/*
 
 RUN apt update && apt install -qqy \
-    ffmpeg libsm6 libxext6 xvfb fury
+    ffmpeg libsm6 libxext6 xvfb
 
 ENV PYTHONPATH=/workspace
 WORKDIR /workspace

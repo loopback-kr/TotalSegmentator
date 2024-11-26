@@ -1,0 +1,11 @@
+{
+    "exclude": [
+        "**/.git",
+        "**/.vscode-server",
+        "**/data",
+        "**/logs",
+        "**/runs",
+        "**/out",
+    ],
+    "ignore": [],
+}
