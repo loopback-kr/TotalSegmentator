@@ -1,18 +1,33 @@
 FROM loopbackkr/pytorch:2.0.1-cuda11.7-cudnn8-devel
 
-ARG USER
-ARG XDG_RUNTIME_DIR
-RUN groupadd --gid $(basename $XDG_RUNTIME_DIR) $USER &&\
-    useradd --uid $(basename $XDG_RUNTIME_DIR) --gid $(basename $XDG_RUNTIME_DIR) -m $USER &&\
-    echo $USER ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER && chmod 0440 /etc/sudoers.d/$USER
+# Set environment variables
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Seoul
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONIOENCODING=UTF-8
+ENV PYTHONDONTWRITEBYTECODE=1
+# Change ubuntu repository to Kakao mirror
+RUN sed -i 's|http://[a-z]\+.ubuntu.com|https://mirror.kakao.com|g' /etc/apt/sources.list
+# Configure python repository with Kakao mirror
+RUN printf "%s\n"\
+    "[global]"\
+    "index-url=https://mirror.kakao.com/pypi/simple/"\
+    "extra-index-url=https://pypi.org/simple/"\
+    "trusted-host=mirror.kakao.com"\
+    > /etc/pip.conf && pip install --no-cache-dir -U pip && pip install --no-cache-dir idna jupyter
+# Install essential packages
+RUN apt-get update -qq && apt-get install -qqy\
+        sudo\
+        tzdata\
+        curl\
+        git\
+    && apt clean && rm -rf /var/lib/apt/lists/*
 
 RUN apt update && apt install -qqy \
     ffmpeg libsm6 libxext6 xvfb
 
 ENV PYTHONPATH=/workspace
 WORKDIR /workspace
-RUN chown $USER:$USER /workspace
-USER $USER
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY setup.py /workspace/

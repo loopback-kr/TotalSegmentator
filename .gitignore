@@ -27,3 +27,8 @@ unittest_prediction_fast_force_split.nii.gz
 
 datasets/
 segmentations/
+
+.vscode-server/
+data/
+out/
+logs/
