@@ -22,5 +22,22 @@
                 "CUDA_VISIBLE_DEVICES": "0"
             }
         },
+        {
+            "name": "Python: Run liver_vessels 0???",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "totalsegmentator/bin/TotalSegmentator.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-i=data/nifti_respacing5.0/CT0001/*.nii.gz",
+                "-o=out/mask_respacing5.0",
+                "--task=liver_vessels",
+                "--remove_small_blobs",
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
     ]
 }

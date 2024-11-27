@@ -13,13 +13,14 @@
 #SBATCH --gpus-per-node 1
 ##SBATCH --dependency afterany:<JOB-ID> # https://slurm.schedmd.com/archive/slurm-24.05.1/sbatch.html#OPT_dependency
 ##SBATCH -w gpu102
-#SBATCH --exclude gpu12
+#SBATCH --exclude gpu12,gpu31
 #SBATCH --array 0-9
 
 # Define Variables
 TAG_NAME=$(echo "$SLURM_JOB_NAME" | tr -cd '[:print:]' | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
 DOCKER_IMAGE="localhost/$TAG_NAME"
 
+# 기타 장기들
 PARAMS_ARRAY=(
     "-i=data/nifti_respacing5.0/CT???0/*.nii.gz -o=data/totalseg --task=total --remove_small_blobs --roi_subset=stomach,kidney_left,kidney_right,aorta,portal_vein_and_splenic_vein,inferior_vena_cava"
     "-i=data/nifti_respacing5.0/CT???1/*.nii.gz -o=data/totalseg --task=total --remove_small_blobs --roi_subset=stomach,kidney_left,kidney_right,aorta,portal_vein_and_splenic_vein,inferior_vena_cava"
@@ -31,6 +32,19 @@ PARAMS_ARRAY=(
     "-i=data/nifti_respacing5.0/CT???7/*.nii.gz -o=data/totalseg --task=total --remove_small_blobs --roi_subset=stomach,kidney_left,kidney_right,aorta,portal_vein_and_splenic_vein,inferior_vena_cava"
     "-i=data/nifti_respacing5.0/CT???8/*.nii.gz -o=data/totalseg --task=total --remove_small_blobs --roi_subset=stomach,kidney_left,kidney_right,aorta,portal_vein_and_splenic_vein,inferior_vena_cava"
     "-i=data/nifti_respacing5.0/CT???9/*.nii.gz -o=data/totalseg --task=total --remove_small_blobs --roi_subset=stomach,kidney_left,kidney_right,aorta,portal_vein_and_splenic_vein,inferior_vena_cava"
+)
+# 간 혈관
+PARAMS_ARRAY=(
+    "-i=data/nifti_respacing5.0/CT???0/*.nii.gz -o=data/totalseg --task=liver_vessels --remove_small_blobs"
+    "-i=data/nifti_respacing5.0/CT???1/*.nii.gz -o=data/totalseg --task=liver_vessels --remove_small_blobs"
+    "-i=data/nifti_respacing5.0/CT???2/*.nii.gz -o=data/totalseg --task=liver_vessels --remove_small_blobs"
+    "-i=data/nifti_respacing5.0/CT???3/*.nii.gz -o=data/totalseg --task=liver_vessels --remove_small_blobs"
+    "-i=data/nifti_respacing5.0/CT???4/*.nii.gz -o=data/totalseg --task=liver_vessels --remove_small_blobs"
+    "-i=data/nifti_respacing5.0/CT???5/*.nii.gz -o=data/totalseg --task=liver_vessels --remove_small_blobs"
+    "-i=data/nifti_respacing5.0/CT???6/*.nii.gz -o=data/totalseg --task=liver_vessels --remove_small_blobs"
+    "-i=data/nifti_respacing5.0/CT???7/*.nii.gz -o=data/totalseg --task=liver_vessels --remove_small_blobs"
+    "-i=data/nifti_respacing5.0/CT???8/*.nii.gz -o=data/totalseg --task=liver_vessels --remove_small_blobs"
+    "-i=data/nifti_respacing5.0/CT???9/*.nii.gz -o=data/totalseg --task=liver_vessels --remove_small_blobs"
 )
 PARAMS="${PARAMS_ARRAY[$SLURM_ARRAY_TASK_ID]}"
 
