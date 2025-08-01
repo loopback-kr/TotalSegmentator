@@ -1,43 +1,19 @@
 {
-    // IntelliSense를 사용하여 가능한 특성에 대해 알아보세요.
-    // 기존 특성에 대한 설명을 보려면 가리킵니다.
-    // 자세한 내용을 보려면 https://go.microsoft.com/fwlink/?linkid=830387을(를) 방문하세요.
-    "version": "0.2.0",
-    "configurations": [
+    "version": "0.2.0", "configurations": [
         {
-            "name": "Python: Run TotalSeg 0???",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "totalsegmentator/bin/TotalSegmentator.py",
-            "console": "integratedTerminal",
-            "justMyCode": true,
+            "name": "TotalSeg", "type": "debugpy", "request": "launch", "console": "integratedTerminal",
+            "program": "totalsegmentator/bin/TotalSegmentator.py", "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0",
+                "TOTALSEG_WEIGHTS_PATH": "/workspace/models",
+            },
             "args": [
-                "-i=data/nifti_respacing5.0/CT0001/*.nii.gz",
-                "-o=out/mask_respacing5.0",
+                "-i=data/_pre_scale_0_150@512x512x32#5mm.nifti/CT000*.nii.gz",
+                "-o=output/TEST",
                 "--roi_subset=stomach,kidney_left,kidney_right,aorta,portal_vein_and_splenic_vein,inferior_vena_cava",
                 "--task=total",
                 "--remove_small_blobs",
             ],
-            "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
-            }
-        },
-        {
-            "name": "Python: Run liver_vessels 0???",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "totalsegmentator/bin/TotalSegmentator.py",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [
-                "-i=data/nifti_respacing5.0/CT0001/*.nii.gz",
-                "-o=out/mask_respacing5.0",
-                "--task=liver_vessels",
-                "--remove_small_blobs",
-            ],
-            "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
-            }
         },
     ]
 }
