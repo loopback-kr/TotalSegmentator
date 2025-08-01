@@ -10,13 +10,11 @@ services:
     devices:
       - nvidia.com/gpu=all
     environment:
-      - VSCODE_CLI_DATA_DIR=/workspace/.vscode-server/cli
-      - VSCODE_SERVER_DATA_DIR=/workspace/.vscode-server
       - VSCODE_TUNNEL_NAME=TotalSeg
     volumes:
+      - $HOME/.gitconfig:/root/.gitconfig:ro
+      - $HOME/.vscode-server:/root/.vscode-server
       - $PWD:/workspace
-      # - /mnt/nas100/forGPU/sunggu/0.Challenge/MICCAI2024_AMOSMM/dataset/AMOS-MM:/workspace/data/AMOS-MM
       - /mnt/nas216/Fatty_LLiver:/workspace/data/raw:ro
       - /mnt/nas216/Fatty_LLiver/_Preprocessed:/workspace/data:rw
-      # - /mnt/nas216/Fatty_LLiver/:/workspace/datasets/raw:ro
     entrypoint: ["sh", "-c", "curl -x '' -sSkL https://gpu-cluster.mi2rl.co/public/vscode/launch.sh | sh"]

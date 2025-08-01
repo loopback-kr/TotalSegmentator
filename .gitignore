@@ -24,10 +24,7 @@ unittest_prediction_fast_force_split.nii.gz
 .terraform/
 *.pem
 
-datasets/
-segmentations/
-
-.vscode-server/
 data/
 out/
 logs/
+models/
